@@ -2,6 +2,7 @@ package mum
 
 import (
 	"io"
+	"math"
 )
 
 // NewEncoder will return a new Encoder
@@ -73,4 +74,14 @@ func (e *Encoder) Int32(v int32) (err error) {
 func (e *Encoder) Int64(v int64) (err error) {
 	_, err = e.w.Write(e.bw.Int64(v))
 	return
+}
+
+// Float32 encodes an float32 type
+func (e *Encoder) Float32(v float32) (err error) {
+	return e.Uint32(math.Float32bits(v))
+}
+
+// Float64 encodes an float64 type
+func (e *Encoder) Float64(v float64) (err error) {
+	return e.Uint64(math.Float64bits(v))
 }

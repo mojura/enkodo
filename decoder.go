@@ -2,6 +2,7 @@ package mum
 
 import (
 	"io"
+	"math"
 )
 
 // NewDecoder will return a new Decoder
@@ -148,4 +149,26 @@ func (d *Decoder) Int64() (v int64, err error) {
 	}
 
 	return d.br.Int64(d.buf[:8])
+}
+
+// Float32 decodes a float64 type
+func (d *Decoder) Float32() (v float32, err error) {
+	var uv uint32
+	if uv, err = d.Uint32(); err != nil {
+		return
+	}
+
+	v = math.Float32frombits(uv)
+	return
+}
+
+// Float64 decodes a float64 type
+func (d *Decoder) Float64() (v float64, err error) {
+	var uv uint64
+	if uv, err = d.Uint64(); err != nil {
+		return
+	}
+
+	v = math.Float64frombits(uv)
+	return
 }
