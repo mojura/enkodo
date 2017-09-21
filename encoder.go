@@ -25,7 +25,7 @@ func (e *Encoder) Uint(v uint) (err error) {
 
 // Uint8 encodes a uint8 type
 func (e *Encoder) Uint8(v uint8) (err error) {
-	_, err = e.w.Write([]byte{v})
+	_, err = e.w.Write(e.bw.Uint8(v))
 	return
 }
 
@@ -54,7 +54,7 @@ func (e *Encoder) Int(v int) (err error) {
 
 // Int8 encodes an int8 type
 func (e *Encoder) Int8(v int8) (err error) {
-	_, err = e.w.Write([]byte{byte(v)})
+	_, err = e.w.Write(e.bw.Int8(v))
 	return
 }
 
@@ -84,4 +84,38 @@ func (e *Encoder) Float32(v float32) (err error) {
 // Float64 encodes an float64 type
 func (e *Encoder) Float64(v float64) (err error) {
 	return e.Uint64(math.Float64bits(v))
+}
+
+// Bytes will encode a byteslice to the writer
+func (e *Encoder) Bytes(v []byte) (err error) {
+	if err = e.Int(len(v)); err != nil {
+		return
+	}
+
+	_, err = e.w.Write(v)
+	return
+}
+
+// String will encode a string to the writer
+func (e *Encoder) String(v string) (err error) {
+	return e.Bytes(getStringBytes(v))
+}
+
+// Bool will encode a boolean value to the writer
+func (e *Encoder) Bool(v bool) (err error) {
+	if v {
+		return e.Uint8(1)
+	}
+
+	return e.Uint8(0)
+}
+
+// Encode will encode an encodee
+func (e *Encoder) Encode(v Encodee) (err error) {
+	return v.MarshalMum(e)
+}
+
+// Encodee is a data structure to be encoded
+type Encodee interface {
+	MarshalMum(*Encoder) error
 }
