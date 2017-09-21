@@ -172,3 +172,66 @@ func (d *Decoder) Float64() (v float64, err error) {
 	v = math.Float64frombits(uv)
 	return
 }
+
+// Bool will return a decoded boolean value
+func (d *Decoder) Bool() (v bool, err error) {
+	var uv uint8
+	if uv, err = d.Uint8(); err != nil {
+		return
+	}
+
+	v = uv == 1
+	return
+}
+
+// Bytes will return decoded bytes
+func (d *Decoder) Bytes() (v []byte, err error) {
+	if v, err = d.BytesUnsafe(); err != nil {
+		return
+	}
+
+	// Make copy of byteslice
+	v = append([]byte{}, v...)
+	return
+}
+
+// BytesUnsafe will return decoded bytes without copying
+func (d *Decoder) BytesUnsafe() (v []byte, err error) {
+	var iv int
+	if iv, err = d.Int(); err != nil {
+		return
+	}
+
+	if iv > len(d.buf) {
+		d.buf = make([]byte, iv)
+	}
+
+	// Read eight bytes from the reader
+	if _, err = io.ReadAtLeast(d.r, d.buf[:iv], iv); err != nil {
+		return
+	}
+
+	v = d.buf[:iv]
+	return
+}
+
+// String will return a decoded string
+func (d *Decoder) String() (v string, err error) {
+	var bs []byte
+	if bs, err = d.BytesUnsafe(); err != nil {
+		return
+	}
+
+	v = string(bs)
+	return
+}
+
+// Decode will decode a decodee
+func (d *Decoder) Decode(v Decodee) (err error) {
+	return v.UnmarshalMum(d)
+}
+
+// Decodee is a data structure to be dedoded
+type Decodee interface {
+	UnmarshalMum(*Decoder) error
+}
