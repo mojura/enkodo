@@ -107,9 +107,9 @@ func (u *User) UnmarshalMum(dec *mum.Decoder) (err error) {
 
 ## Features
 - [x] Support for basic primitives
-- [] Support for maps (currently needs helper func)
-- [] Support for complex ints
+- [ ] Support for maps (currently needs helper func)
+- [ ] Support for complex ints
 - [x] Encoding via helper funcs
 - [x] Decoding via helper funcs
-- [] Encoding helper funcs created by reflection
-- [] Decoding helper funcs created by reflection
+- [ ] Encoding helper funcs created by reflection
+- [ ] Decoding helper funcs created by reflection
