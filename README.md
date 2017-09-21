@@ -8,9 +8,11 @@ Mum is a no-frills encoder/decoder. It is focused around speed and simplicity.
 # Mum
 BenchmarkMumEncoding-4          10000000               141 ns/op               0 B/op          0 allocs/op
 BenchmarkMumDecoding-4          10000000               227 ns/op              16 B/op          1 allocs/op
+
 # Binny (github.com/missionMeteora/binny.v2)
 BenchmarkBinnyEncoding-4         5000000               343 ns/op              32 B/op          6 allocs/op
 BenchmarkBinnyDecoding-4         5000000               390 ns/op              32 B/op          2 allocs/op
+
 # JSON (standard library)
 BenchmarkJSONEncoding-4         10000000               164 ns/op               0 B/op          0 allocs/op
 BenchmarkJSONDecoding-4          5000000               273 ns/op               0 B/op          0 allocs/op
