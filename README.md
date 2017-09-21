@@ -1,4 +1,5 @@
-# Mum (Marshal, unmarshal)
+# Mum (Marshal, unmarshal) [![GoDoc](https://godoc.org/github.com/itsmontoya/mum?status.svg)](https://godoc.org/github.com/itsmontoya/mum) ![Status](https://img.shields.io/badge/status-beta-yellow.svg) [![Go Report Card](https://goreportcard.com/badge/github.com/itsmontoya/mum)](https://goreportcard.com/report/github.com/itsmontoya/mum)
+
 Mum is a no-frills encoder/decoder. It is focused around speed and simplicity. 
 
 *Note: Mum does not come with training wheels*
