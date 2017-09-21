@@ -2,6 +2,7 @@ package mum
 
 import (
 	"encoding/binary"
+	"unsafe"
 
 	"github.com/missionMeteora/toolkit/errors"
 )
@@ -14,6 +15,11 @@ const (
 // BinaryWriter will write numbers as binary bytes
 type BinaryWriter struct {
 	buf [8]byte
+}
+
+func (b *BinaryWriter) Uint8(v uint8) []byte {
+	b.buf[0] = v
+	return b.buf[:1]
 }
 
 func (b *BinaryWriter) Uint16(v uint16) []byte {
@@ -29,6 +35,11 @@ func (b *BinaryWriter) Uint32(v uint32) []byte {
 func (b *BinaryWriter) Uint64(v uint64) []byte {
 	binary.LittleEndian.PutUint64(b.buf[:], v)
 	return b.buf[:]
+}
+
+func (b *BinaryWriter) Int8(v int8) []byte {
+	b.buf[0] = uint8(v)
+	return b.buf[:1]
 }
 
 func (b *BinaryWriter) Int16(v int16) []byte {
@@ -104,4 +115,8 @@ func (b *BinaryReader) Int64(bs []byte) (v int64, err error) {
 
 	v = int64(binary.LittleEndian.Uint64(bs))
 	return
+}
+
+func getStringBytes(str string) []byte {
+	return *((*[]byte)(unsafe.Pointer(&str)))
 }
