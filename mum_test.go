@@ -5,8 +5,6 @@ import (
 	"encoding/json"
 	"math"
 	"testing"
-
-	"github.com/missionMeteora/binny.v2"
 )
 
 const (
@@ -235,49 +233,6 @@ func BenchmarkMumDecoding(b *testing.B) {
 	}
 }
 
-func BenchmarkBinnyEncoding(b *testing.B) {
-	var err error
-	base := newTestStruct()
-	buf := bytes.NewBuffer(nil)
-	b.ReportAllocs()
-	b.ResetTimer()
-
-	e := binny.NewEncoder(buf)
-	for i := 0; i < b.N; i++ {
-		if err = e.Encode(&base); err != nil {
-			b.Fatal(err)
-		}
-
-		// We reset after each iteration so our buffer slice doesn't continuously grow
-		buf.Reset()
-	}
-}
-
-func BenchmarkBinnyDecoding(b *testing.B) {
-	var err error
-	base := newTestStruct()
-	buf := bytes.NewBuffer(nil)
-
-	if err = binny.NewEncoder(buf).Encode(&base); err != nil {
-		b.Fatal(err)
-	}
-
-	r := bytes.NewReader(buf.Bytes())
-	d := binny.NewDecoder(r)
-
-	b.ReportAllocs()
-	b.ResetTimer()
-
-	for i := 0; i < b.N; i++ {
-		if err = d.Decode(&testVal); err != nil {
-			b.Fatal(err)
-		}
-
-		// We reset after each iteration so our buffer slice doesn't continuously grow
-		r.Reset(buf.Bytes())
-	}
-}
-
 func BenchmarkJSONEncoding(b *testing.B) {
 	var err error
 	base := newTestStruct()
@@ -440,94 +395,6 @@ func (t *testStruct) UnmarshalMum(dec *Decoder) (err error) {
 	}
 
 	if t.bv, err = dec.Bool(); err != nil {
-		return
-	}
-
-	return
-}
-
-func (t *testStruct) MarshalBinny(enc *binny.Encoder) (err error) {
-	if err = enc.WriteInt8(t.iv8); err != nil {
-		return
-	}
-
-	if err = enc.WriteInt16(t.iv16); err != nil {
-		return
-	}
-
-	if err = enc.WriteInt32(t.iv32); err != nil {
-		return
-	}
-
-	if err = enc.WriteInt64(t.iv64); err != nil {
-		return
-	}
-
-	if err = enc.WriteUint8(t.uv8); err != nil {
-		return
-	}
-
-	if err = enc.WriteUint16(t.uv16); err != nil {
-		return
-	}
-
-	if err = enc.WriteUint32(t.uv32); err != nil {
-		return
-	}
-
-	if err = enc.WriteUint64(t.uv64); err != nil {
-		return
-	}
-
-	if err = enc.WriteString(t.sv); err != nil {
-		return
-	}
-
-	if err = enc.WriteBool(t.bv); err != nil {
-		return
-	}
-
-	return
-}
-
-func (t *testStruct) UnmarshalBinny(dec *binny.Decoder) (err error) {
-	if t.iv8, err = dec.ReadInt8(); err != nil {
-		return
-	}
-
-	if t.iv16, err = dec.ReadInt16(); err != nil {
-		return
-	}
-
-	if t.iv32, err = dec.ReadInt32(); err != nil {
-		return
-	}
-
-	if t.iv64, err = dec.ReadInt64(); err != nil {
-		return
-	}
-
-	if t.uv8, err = dec.ReadUint8(); err != nil {
-		return
-	}
-
-	if t.uv16, err = dec.ReadUint16(); err != nil {
-		return
-	}
-
-	if t.uv32, err = dec.ReadUint32(); err != nil {
-		return
-	}
-
-	if t.uv64, err = dec.ReadUint64(); err != nil {
-		return
-	}
-
-	if t.sv, err = dec.ReadString(); err != nil {
-		return
-	}
-
-	if t.bv, err = dec.ReadBool(); err != nil {
 		return
 	}
 
