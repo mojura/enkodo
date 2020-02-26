@@ -4,7 +4,7 @@ import (
 	"encoding/binary"
 	"unsafe"
 
-	"github.com/missionMeteora/toolkit/errors"
+	"github.com/Hatch1fy/errors"
 )
 
 const (

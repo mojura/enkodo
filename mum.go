@@ -1,7 +1,5 @@
 package mum
 
-import ()
-
 // Type represents a primitive type
 type Type uint8
 
