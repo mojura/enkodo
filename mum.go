@@ -1,5 +1,14 @@
 package mum
 
+import "errors"
+
+// ErrEmptyBytes are returned when inbound bytes are empty during decode
+var ErrEmptyBytes = errors.New("cannot decode, inbound bytes are empty")
+
+const (
+	ceiling = 0x80
+)
+
 // Type represents a primitive type
 type Type uint8
 
