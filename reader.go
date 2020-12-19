@@ -22,6 +22,11 @@ func (r *Reader) Decode(v Decodee) (err error) {
 	return
 }
 
+// SetBuffer will replace the buffer bytes for a reader
+func (r *Reader) SetBuffer(bs []byte) {
+	r.d.bs = bs
+}
+
 // Close will close the reader
 func (r *Reader) Close() (err error) {
 	r.d = nil
