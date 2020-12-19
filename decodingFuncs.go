@@ -213,7 +213,7 @@ func decodeString(bs []byte) (v string, remaining []byte, err error) {
 		return
 	}
 
-	v = string(data)
+	v = getStringFromBytes(data)
 	return
 }
 
