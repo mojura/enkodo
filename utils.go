@@ -6,6 +6,10 @@ func getStringBytes(str string) []byte {
 	return *((*[]byte)(unsafe.Pointer(&str)))
 }
 
+func getStringFromBytes(bs []byte) string {
+	return *((*string)(unsafe.Pointer(&bs)))
+}
+
 // Marshal will encode a value
 func Marshal(v Encodee) (bs []byte) {
 	return MarshalAppend(v, nil)
