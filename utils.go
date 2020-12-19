@@ -3,13 +3,6 @@ package mum
 import (
 	"encoding/binary"
 	"unsafe"
-
-	"github.com/Hatch1fy/errors"
-)
-
-const (
-	// ErrInvalidLength is returned when a byteslice has an invalid length for it's desired primitive
-	ErrInvalidLength = errors.Error("invalid length")
 )
 
 // BinaryWriter will write numbers as binary bytes
