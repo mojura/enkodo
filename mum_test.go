@@ -234,7 +234,10 @@ func TestEncoderDecoder(t *testing.T) {
 
 	a = newTestStruct()
 	e := newEncoder(nil)
-	e.Encode(&a)
+	if err = e.Encode(&a); err != nil {
+		t.Fatal(err)
+	}
+
 	d := newDecoder(e.bs)
 	if err = d.Decode(&b); err != nil {
 		return
@@ -246,13 +249,17 @@ func TestEncoderDecoder(t *testing.T) {
 }
 
 func BenchmarkMumEncoding(b *testing.B) {
+	var err error
 	base := newTestStruct()
 	b.ReportAllocs()
 	b.ResetTimer()
 
 	w := NewWriter(nil)
 	for i := 0; i < b.N; i++ {
-		w.Encode(&base)
+		if err = w.Encode(&base); err != nil {
+			b.Fatal(err)
+		}
+
 		// We reset after each iteration so our buffer slice doesn't continuously grow
 		w.Reset()
 	}
@@ -262,7 +269,10 @@ func BenchmarkMumDecoding(b *testing.B) {
 	var err error
 	base := newTestStruct()
 	e := newEncoder(nil)
-	e.Encode(&base)
+
+	if err = e.Encode(&base); err != nil {
+		b.Fatal(err)
+	}
 
 	b.ReportAllocs()
 	b.ResetTimer()

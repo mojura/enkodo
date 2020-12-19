@@ -22,7 +22,9 @@ func main() {
 	// Create a writer
 	w := mum.NewWriter(nil)
 	// Encode user
-	w.Encode(&u)
+	if err = w.Encode(&u); err != nil {
+		log.Fatalf("Error encoding: %v", err)
+	}
 
 	// Create decoder
 	r := mum.NewReader(w.Bytes())

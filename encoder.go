@@ -90,8 +90,8 @@ func (e *Encoder) Bool(v bool) {
 }
 
 // Encode will encode an encodee
-func (e *Encoder) Encode(v Encodee) {
-	v.MarshalMum(e)
+func (e *Encoder) Encode(v Encodee) (err error) {
+	return v.MarshalMum(e)
 }
 
 // Encodee is a data structure to be encoded

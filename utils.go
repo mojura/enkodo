@@ -11,15 +11,19 @@ func getStringFromBytes(bs []byte) string {
 }
 
 // Marshal will encode a value
-func Marshal(v Encodee) (bs []byte) {
+func Marshal(v Encodee) (bs []byte, err error) {
 	return MarshalAppend(v, nil)
 }
 
 // MarshalAppend will encode a value to a provided slice
-func MarshalAppend(v Encodee, buffer []byte) (bs []byte) {
+func MarshalAppend(v Encodee, buffer []byte) (bs []byte, err error) {
 	enc := newEncoder(buffer)
-	enc.Encode(v)
-	return enc.bs
+	if err = enc.Encode(v); err != nil {
+		return
+	}
+
+	bs = enc.bs
+	return
 }
 
 // Unmarshal will decode a value
