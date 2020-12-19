@@ -395,7 +395,7 @@ type testStruct struct {
 	bv bool
 }
 
-func (t *testStruct) MarshalMum(enc *Encoder) {
+func (t *testStruct) MarshalMum(enc *Encoder) (err error) {
 	enc.Int8(t.iv8)
 	enc.Int16(t.iv16)
 	enc.Int32(t.iv32)

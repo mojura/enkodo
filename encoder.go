@@ -96,5 +96,5 @@ func (e *Encoder) Encode(v Encodee) {
 
 // Encodee is a data structure to be encoded
 type Encodee interface {
-	MarshalMum(*Encoder)
+	MarshalMum(*Encoder) error
 }

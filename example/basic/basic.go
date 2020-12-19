@@ -42,7 +42,7 @@ type User struct {
 }
 
 // MarshalMum will marshal a User
-func (u *User) MarshalMum(enc *mum.Encoder) {
+func (u *User) MarshalMum(enc *mum.Encoder) (err error) {
 	enc.String(u.Email)
 	enc.Uint8(u.Age)
 	enc.String(u.Twitter)
