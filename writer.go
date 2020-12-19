@@ -1,12 +1,6 @@
 package mum
 
-import (
-	"errors"
-	"io"
-)
-
-// ErrIsClosed is returned when an action is attempted on a closed instance
-var ErrIsClosed = errors.New("cannot perform action on closed instance")
+import "io"
 
 // NewWriter will initialize a new instance of writer
 func NewWriter(buffer []byte) *Writer {
