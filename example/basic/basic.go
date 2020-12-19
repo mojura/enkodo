@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bytes"
 	"log"
 
 	"github.com/itsmontoya/mum"
@@ -20,19 +19,15 @@ func main() {
 	u.Age = 46
 	u.Twitter = "@johndoe"
 
-	// Create a buffer to write to
-	buf := bytes.NewBuffer(nil)
-	// Create encoder
-	enc := mum.NewEncoder(buf)
+	// Create a writer
+	w := mum.NewWriter(nil)
 	// Encode user
-	if err = enc.Encode(&u); err != nil {
-		log.Fatalf("Error encoding: %v", err)
-	}
+	w.Encode(&u)
 
 	// Create decoder
-	dec := mum.NewDecoder(buf)
+	r := mum.NewReader(w.Bytes())
 	// Decode new user
-	if err = dec.Decode(&nu); err != nil {
+	if err = r.Decode(&nu); err != nil {
 		log.Fatalf("Error decoding: %v", err)
 	}
 
@@ -47,19 +42,10 @@ type User struct {
 }
 
 // MarshalMum will marshal a User
-func (u *User) MarshalMum(enc *mum.Encoder) (err error) {
-	if err = enc.String(u.Email); err != nil {
-		return
-	}
-
-	if err = enc.Uint8(u.Age); err != nil {
-		return
-	}
-
-	if err = enc.String(u.Twitter); err != nil {
-		return
-	}
-
+func (u *User) MarshalMum(enc *mum.Encoder) {
+	enc.String(u.Email)
+	enc.Uint8(u.Age)
+	enc.String(u.Twitter)
 	return
 }
 

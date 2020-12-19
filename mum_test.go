@@ -23,14 +23,13 @@ func TestInt(t *testing.T) {
 		err  error
 	)
 
-	b := bytes.NewBuffer(nil)
-	e := NewEncoder(b)
-	d := NewDecoder(b)
+	e := newEncoder(nil)
 
 	e.Int8(testNum)
 	e.Int16(testNum)
 	e.Int32(testNum)
 	e.Int64(testNum)
+	d := newDecoder(e.bs)
 
 	if iv8, err = d.Int8(); err != nil {
 		t.Fatal(err)
@@ -66,14 +65,13 @@ func TestUint(t *testing.T) {
 		err  error
 	)
 
-	b := bytes.NewBuffer(nil)
-	e := NewEncoder(b)
-	d := NewDecoder(b)
+	e := newEncoder(nil)
 
 	e.Uint8(testNum)
 	e.Uint16(testNum)
 	e.Uint32(testNum)
 	e.Uint64(testNum)
+	d := newDecoder(e.bs)
 
 	if uv8, err = d.Uint8(); err != nil {
 		t.Fatal(err)
@@ -107,12 +105,10 @@ func TestFloat(t *testing.T) {
 		err error
 	)
 
-	b := bytes.NewBuffer(nil)
-	e := NewEncoder(b)
-	d := NewDecoder(b)
-
+	e := newEncoder(nil)
 	e.Float32(3.33)
 	e.Float64(3.33)
+	d := newDecoder(e.bs)
 
 	if f32, err = d.Float32(); err != nil {
 		t.Fatal(err)
@@ -133,11 +129,9 @@ func TestBool(t *testing.T) {
 		err error
 	)
 
-	b := bytes.NewBuffer(nil)
-	e := NewEncoder(b)
-	d := NewDecoder(b)
-
+	e := newEncoder(nil)
 	e.Bool(true)
+	d := newDecoder(e.bs)
 
 	if bv, err = d.Bool(); err != nil {
 		t.Fatal(err)
@@ -152,11 +146,9 @@ func TestString(t *testing.T) {
 		err error
 	)
 
-	b := bytes.NewBuffer(nil)
-	e := NewEncoder(b)
-	d := NewDecoder(b)
-
+	e := newEncoder(nil)
 	e.String("Hello world")
+	d := newDecoder(e.bs)
 
 	if sv, err = d.String(); err != nil {
 		t.Fatal(err)
@@ -165,22 +157,85 @@ func TestString(t *testing.T) {
 	}
 }
 
+func Test_encodeUint64(t *testing.T) {
+	var (
+		bs  []byte
+		err error
+	)
+
+	for i := uint64(0); i < 1_000_000; i++ {
+		bs = encodeUint64(bs, i)
+
+		var val uint64
+		if val, _, err = decodeUint64(bs); err != nil {
+			t.Fatal(err)
+		}
+
+		if val != i {
+			t.Fatalf("invalid value, expected <%d> and received <%d>", i, val)
+		}
+
+		bs = bs[:0]
+	}
+}
+
+func Test_encodeInt64(t *testing.T) {
+	var (
+		bs  []byte
+		err error
+	)
+
+	for i := int64(-500_000); i < 500_000; i++ {
+		bs = encodeInt64(bs, i)
+		var val int64
+		if val, _, err = decodeInt64(bs); err != nil {
+			t.Fatal(err)
+		}
+
+		if val != i {
+			t.Fatalf("invalid value, expected <%d> and received <%d>", i, val)
+		}
+
+		bs = bs[:0]
+	}
+}
+
+func testietest(in []byte, v uint64) (buf []byte) {
+	buf = in
+	switch {
+	case v < 1<<7-1:
+		buf = append(buf, byte(v))
+	case v < 1<<14-1:
+		buf = append(buf, byte(v)|0x80, byte(v>>7))
+	case v < 1<<21-1:
+		buf = append(buf, byte(v)|0x80, byte(v>>7)|0x80, byte(v>>14))
+	case v < 1<<28-1:
+		buf = append(buf, byte(v)|0x80, byte(v>>7)|0x80, byte(v>>14)|0x80, byte(v>>21))
+	case v < 1<<35-1:
+		buf = append(buf, byte(v)|0x80, byte(v>>7)|0x80, byte(v>>14)|0x80, byte(v>>21)|0x80, byte(v>>28))
+	case v < 1<<42-1:
+		buf = append(buf, byte(v)|0x80, byte(v>>7)|0x80, byte(v>>14)|0x80, byte(v>>21)|0x80, byte(v>>28)|0x80, byte(v>>35))
+	case v < 1<<49-1:
+		buf = append(buf, byte(v)|0x80, byte(v>>7)|0x80, byte(v>>14)|0x80, byte(v>>21)|0x80, byte(v>>28)|0x80, byte(v>>35)|0x80, byte(v>>42))
+	case v < 1<<56-1:
+		buf = append(buf, byte(v)|0x80, byte(v>>7)|0x80, byte(v>>14)|0x80, byte(v>>21)|0x80, byte(v>>28)|0x80, byte(v>>35)|0x80, byte(v>>42)|0x80, byte(v>>49))
+	default:
+		buf = append(buf, byte(v)|0x80, byte(v>>7)|0x80, byte(v>>14)|0x80, byte(v>>21)|0x80, byte(v>>28)|0x80, byte(v>>35)|0x80, byte(v>>42)|0x80, byte(v>>49)|0x80, byte(v>>56))
+	}
+
+	return
+}
+
 func TestEncoderDecoder(t *testing.T) {
 	var (
 		a, b testStruct
 		err  error
-
-		buf = bytes.NewBuffer(nil)
 	)
 
 	a = newTestStruct()
-	e := NewEncoder(buf)
-
-	if err = e.Encode(&a); err != nil {
-		return
-	}
-
-	d := NewDecoder(buf)
+	e := newEncoder(nil)
+	e.Encode(&a)
+	d := newDecoder(e.bs)
 	if err = d.Decode(&b); err != nil {
 		return
 	}
@@ -191,45 +246,34 @@ func TestEncoderDecoder(t *testing.T) {
 }
 
 func BenchmarkMumEncoding(b *testing.B) {
-	var err error
 	base := newTestStruct()
-	buf := bytes.NewBuffer(nil)
 	b.ReportAllocs()
 	b.ResetTimer()
 
-	e := NewEncoder(buf)
+	w := NewWriter(nil)
 	for i := 0; i < b.N; i++ {
-		if err = e.Encode(&base); err != nil {
-			b.Fatal(err)
-		}
-
+		w.Encode(&base)
 		// We reset after each iteration so our buffer slice doesn't continuously grow
-		buf.Reset()
+		w.Reset()
 	}
 }
 
 func BenchmarkMumDecoding(b *testing.B) {
 	var err error
 	base := newTestStruct()
-	buf := bytes.NewBuffer(nil)
-
-	if err = NewEncoder(buf).Encode(&base); err != nil {
-		b.Fatal(err)
-	}
-
-	r := bytes.NewReader(buf.Bytes())
+	e := newEncoder(nil)
+	e.Encode(&base)
 
 	b.ReportAllocs()
 	b.ResetTimer()
 
-	d := NewDecoder(r)
+	r := NewReader(e.bs)
 	for i := 0; i < b.N; i++ {
-		if err = d.Decode(&testVal); err != nil {
+		if err = r.Decode(&testVal); err != nil {
 			b.Fatal(err)
 		}
 
-		// We reset after each iteration so our buffer slice doesn't continuously grow
-		r.Reset(buf.Bytes())
+		r.d.bs = e.bs
 	}
 }
 
@@ -276,6 +320,44 @@ func BenchmarkJSONDecoding(b *testing.B) {
 	}
 }
 
+func BenchmarkEncodeInt64(b *testing.B) {
+	w := NewWriter(nil)
+	b.ReportAllocs()
+	b.ResetTimer()
+
+	var value int64
+	for i := 0; i < b.N; i++ {
+		w.e.Int64(value)
+
+		// We reset after each iteration so our buffer slice doesn't continuously grow
+		w.Reset()
+	}
+}
+
+func BenchmarkEncoder_Uint64(b *testing.B) {
+	w := NewWriter(nil)
+	b.ReportAllocs()
+	b.ResetTimer()
+
+	for i := 0; i < b.N; i++ {
+		w.e.Uint64(uint64(i))
+
+		// We reset after each iteration so our buffer slice doesn't continuously grow
+		w.Reset()
+	}
+}
+
+func BenchmarkEncodeUint64(b *testing.B) {
+	var buf []byte
+	b.ReportAllocs()
+	b.ResetTimer()
+
+	for i := 0; i < b.N; i++ {
+		buf = encodeUint64(buf, uint64(i))
+		buf = buf[:0]
+	}
+}
+
 func newTestStruct() (t testStruct) {
 	t.iv8 = math.MinInt8
 	t.iv16 = math.MinInt16
@@ -313,47 +395,17 @@ type testStruct struct {
 	bv bool
 }
 
-func (t *testStruct) MarshalMum(enc *Encoder) (err error) {
-	if err = enc.Int8(t.iv8); err != nil {
-		return
-	}
-
-	if err = enc.Int16(t.iv16); err != nil {
-		return
-	}
-
-	if err = enc.Int32(t.iv32); err != nil {
-		return
-	}
-
-	if err = enc.Int64(t.iv64); err != nil {
-		return
-	}
-
-	if err = enc.Uint8(t.uv8); err != nil {
-		return
-	}
-
-	if err = enc.Uint16(t.uv16); err != nil {
-		return
-	}
-
-	if err = enc.Uint32(t.uv32); err != nil {
-		return
-	}
-
-	if err = enc.Uint64(t.uv64); err != nil {
-		return
-	}
-
-	if err = enc.String(t.sv); err != nil {
-		return
-	}
-
-	if err = enc.Bool(t.bv); err != nil {
-		return
-	}
-
+func (t *testStruct) MarshalMum(enc *Encoder) {
+	enc.Int8(t.iv8)
+	enc.Int16(t.iv16)
+	enc.Int32(t.iv32)
+	enc.Int64(t.iv64)
+	enc.Uint8(t.uv8)
+	enc.Uint16(t.uv16)
+	enc.Uint32(t.uv32)
+	enc.Uint64(t.uv64)
+	enc.String(t.sv)
+	enc.Bool(t.bv)
 	return
 }
 
