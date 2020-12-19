@@ -20,8 +20,7 @@ func (w *Writer) Encode(v Encodee) (err error) {
 		return ErrIsClosed
 	}
 
-	v.MarshalMum(w.e)
-	return
+	return v.MarshalMum(w.e)
 }
 
 // Reset will reset the underlying bytes of the Encoder
