@@ -1,4 +1,4 @@
-# Enkodo (Marshal, unmarshal) [![GoDoc](https://godoc.org/github.com/itsmontoya/enkodo?status.svg)](https://godoc.org/github.com/itsmontoya/enkodo) ![Status](https://img.shields.io/badge/status-beta-yellow.svg) [![Go Report Card](https://goreportcard.com/badge/github.com/itsmontoya/enkodo)](https://goreportcard.com/report/github.com/itsmontoya/enkodo)
+# Enkodo (Marshal, unmarshal) [![GoDoc](https://godoc.org/github.com/mojura/enkodo?status.svg)](https://godoc.org/github.com/mojura/enkodo) ![Status](https://img.shields.io/badge/status-beta-yellow.svg) [![Go Report Card](https://goreportcard.com/badge/github.com/mojura/enkodo)](https://goreportcard.com/report/github.com/mojura/enkodo)
 
 Enkodo is a no-frills encoder/decoder. It is focused around speed and simplicity. 
 
@@ -27,7 +27,7 @@ import (
 	"bytes"
 	"log"
 
-	"github.com/itsmontoya/enkodo"
+	"github.com/mojura/enkodo"
 )
 
 func main() {
