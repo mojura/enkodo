@@ -1,4 +1,4 @@
-package mum
+package enkodo
 
 func newEncoder(bs []byte) *Encoder {
 	var e Encoder
@@ -91,10 +91,10 @@ func (e *Encoder) Bool(v bool) {
 
 // Encode will encode an encodee
 func (e *Encoder) Encode(v Encodee) (err error) {
-	return v.MarshalMum(e)
+	return v.MarshalEnkodo(e)
 }
 
 // Encodee is a data structure to be encoded
 type Encodee interface {
-	MarshalMum(*Encoder) error
+	MarshalEnkodo(*Encoder) error
 }

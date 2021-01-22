@@ -1,4 +1,4 @@
-package mum
+package enkodo
 
 func newDecoder(bs []byte) *Decoder {
 	var d Decoder
@@ -111,10 +111,10 @@ func (d *Decoder) String() (v string, err error) {
 
 // Decode will decode a decodee
 func (d *Decoder) Decode(v Decodee) (err error) {
-	return v.UnmarshalMum(d)
+	return v.UnmarshalEnkodo(d)
 }
 
 // Decodee is a data structure to be dedoded
 type Decodee interface {
-	UnmarshalMum(*Decoder) error
+	UnmarshalEnkodo(*Decoder) error
 }

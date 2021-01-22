@@ -1,4 +1,4 @@
-package mum
+package enkodo
 
 import (
 	"math"

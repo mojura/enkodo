@@ -1,3 +1,3 @@
-module github.com/itsmontoya/mum
+module github.com/mojura/enkodo
 
-go 1.13
+go 1.15

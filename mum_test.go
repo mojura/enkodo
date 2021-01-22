@@ -1,4 +1,4 @@
-package mum
+package enkodo
 
 import (
 	"bytes"
@@ -248,7 +248,7 @@ func TestEncoderDecoder(t *testing.T) {
 	}
 }
 
-func BenchmarkMumEncoding(b *testing.B) {
+func BenchmarkEnkodoEncoding(b *testing.B) {
 	var err error
 	base := newTestStruct()
 	b.ReportAllocs()
@@ -265,7 +265,7 @@ func BenchmarkMumEncoding(b *testing.B) {
 	}
 }
 
-func BenchmarkMumDecoding(b *testing.B) {
+func BenchmarkEnkodoDecoding(b *testing.B) {
 	var err error
 	base := newTestStruct()
 	e := newEncoder(nil)
@@ -405,7 +405,7 @@ type testStruct struct {
 	bv bool
 }
 
-func (t *testStruct) MarshalMum(enc *Encoder) (err error) {
+func (t *testStruct) MarshalEnkodo(enc *Encoder) (err error) {
 	enc.Int8(t.iv8)
 	enc.Int16(t.iv16)
 	enc.Int32(t.iv32)
@@ -419,7 +419,7 @@ func (t *testStruct) MarshalMum(enc *Encoder) (err error) {
 	return
 }
 
-func (t *testStruct) UnmarshalMum(dec *Decoder) (err error) {
+func (t *testStruct) UnmarshalEnkodo(dec *Decoder) (err error) {
 	if t.iv8, err = dec.Int8(); err != nil {
 		return
 	}

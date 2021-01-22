@@ -1,4 +1,4 @@
-package mum
+package enkodo
 
 // NewReader will initialize a new instance of writer
 func NewReader(buffer []byte) *Reader {
@@ -7,7 +7,7 @@ func NewReader(buffer []byte) *Reader {
 	return &r
 }
 
-// Reader manages the writing of mum output
+// Reader manages the writing of enkodo output
 type Reader struct {
 	d *Decoder
 }
@@ -18,7 +18,7 @@ func (r *Reader) Decode(v Decodee) (err error) {
 		return ErrIsClosed
 	}
 
-	v.UnmarshalMum(r.d)
+	v.UnmarshalEnkodo(r.d)
 	return
 }
 

@@ -3,7 +3,7 @@ package main
 import (
 	"log"
 
-	"github.com/itsmontoya/mum"
+	"github.com/mojura/enkodo"
 )
 
 func main() {
@@ -20,14 +20,14 @@ func main() {
 	u.Twitter = "@johndoe"
 
 	// Create a writer
-	w := mum.NewWriter(nil)
+	w := enkodo.NewWriter(nil)
 	// Encode user
 	if err = w.Encode(&u); err != nil {
 		log.Fatalf("Error encoding: %v", err)
 	}
 
 	// Create decoder
-	r := mum.NewReader(w.Bytes())
+	r := enkodo.NewReader(w.Bytes())
 	// Decode new user
 	if err = r.Decode(&nu); err != nil {
 		log.Fatalf("Error decoding: %v", err)
@@ -43,16 +43,16 @@ type User struct {
 	Twitter string
 }
 
-// MarshalMum will marshal a User
-func (u *User) MarshalMum(enc *mum.Encoder) (err error) {
+// MarshalEnkodo will marshal a User
+func (u *User) MarshalEnkodo(enc *enkodo.Encoder) (err error) {
 	enc.String(u.Email)
 	enc.Uint8(u.Age)
 	enc.String(u.Twitter)
 	return
 }
 
-// UnmarshalMum will unmarshal a User
-func (u *User) UnmarshalMum(dec *mum.Decoder) (err error) {
+// UnmarshalEnkodo will unmarshal a User
+func (u *User) UnmarshalEnkodo(dec *enkodo.Decoder) (err error) {
 	if u.Email, err = dec.String(); err != nil {
 		return
 	}

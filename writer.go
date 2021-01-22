@@ -1,4 +1,4 @@
-package mum
+package enkodo
 
 import "io"
 
@@ -9,7 +9,7 @@ func NewWriter(buffer []byte) *Writer {
 	return &w
 }
 
-// Writer manages the writing of mum output
+// Writer manages the writing of enkodo output
 type Writer struct {
 	e *Encoder
 }
@@ -20,7 +20,7 @@ func (w *Writer) Encode(v Encodee) (err error) {
 		return ErrIsClosed
 	}
 
-	return v.MarshalMum(w.e)
+	return v.MarshalEnkodo(w.e)
 }
 
 // Reset will reset the underlying bytes of the Encoder

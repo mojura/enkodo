@@ -1,14 +1,14 @@
-# Mum (Marshal, unmarshal) [![GoDoc](https://godoc.org/github.com/itsmontoya/mum?status.svg)](https://godoc.org/github.com/itsmontoya/mum) ![Status](https://img.shields.io/badge/status-beta-yellow.svg) [![Go Report Card](https://goreportcard.com/badge/github.com/itsmontoya/mum)](https://goreportcard.com/report/github.com/itsmontoya/mum)
+# Enkodo (Marshal, unmarshal) [![GoDoc](https://godoc.org/github.com/itsmontoya/enkodo?status.svg)](https://godoc.org/github.com/itsmontoya/enkodo) ![Status](https://img.shields.io/badge/status-beta-yellow.svg) [![Go Report Card](https://goreportcard.com/badge/github.com/itsmontoya/enkodo)](https://goreportcard.com/report/github.com/itsmontoya/enkodo)
 
-Mum is a no-frills encoder/decoder. It is focused around speed and simplicity. 
+Enkodo is a no-frills encoder/decoder. It is focused around speed and simplicity. 
 
-*Note: Mum does not come with training wheels*
+*Note: Enkodo does not come with training wheels*
 
 ## Benchmarks
 ```bash
-# Mum
-BenchmarkMumEncoding-4          10000000               141 ns/op               0 B/op          0 allocs/op
-BenchmarkMumDecoding-4          10000000               227 ns/op              16 B/op          1 allocs/op
+# Enkodo
+BenchmarkEnkodoEncoding-4          10000000               141 ns/op               0 B/op          0 allocs/op
+BenchmarkEnkodoDecoding-4          10000000               227 ns/op              16 B/op          1 allocs/op
 
 # Binny (github.com/missionMeteora/binny.v2)
 BenchmarkBinnyEncoding-4         5000000               343 ns/op              32 B/op          6 allocs/op
@@ -27,7 +27,7 @@ import (
 	"bytes"
 	"log"
 
-	"github.com/itsmontoya/mum"
+	"github.com/itsmontoya/enkodo"
 )
 
 func main() {
@@ -46,14 +46,14 @@ func main() {
 	// Create a buffer to write to
 	buf := bytes.NewBuffer(nil)
 	// Create encoder
-	enc := mum.NewEncoder(buf)
+	enc := enkodo.NewEncoder(buf)
 	// Encode user
 	if err = enc.Encode(&u); err != nil {
 		log.Fatalf("Error encoding: %v", err)
 	}
 
 	// Create decoder
-	dec := mum.NewDecoder(buf)
+	dec := enkodo.NewDecoder(buf)
 	// Decode new user
 	if err = dec.Decode(&nu); err != nil {
 		log.Fatalf("Error decoding: %v", err)
@@ -69,8 +69,8 @@ type User struct {
 	Twitter string
 }
 
-// MarshalMum will marshal a User
-func (u *User) MarshalMum(enc *mum.Encoder) (err error) {
+// MarshalEnkodo will marshal a User
+func (u *User) MarshalEnkodo(enc *enkodo.Encoder) (err error) {
 	if err = enc.String(u.Email); err != nil {
 		return
 	}
@@ -86,8 +86,8 @@ func (u *User) MarshalMum(enc *mum.Encoder) (err error) {
 	return
 }
 
-// UnmarshalMum will unmarshal a User
-func (u *User) UnmarshalMum(dec *mum.Decoder) (err error) {
+// UnmarshalEnkodo will unmarshal a User
+func (u *User) UnmarshalEnkodo(dec *enkodo.Decoder) (err error) {
 	if u.Email, err = dec.String(); err != nil {
 		return
 	}
