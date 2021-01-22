@@ -2,7 +2,7 @@
 
 Enkodo is a no-frills encoder/decoder. It is focused around speed and simplicity. 
 
-*Note: Enkodo does not come with training wheels*
+*Note: Enkodo is still in development and the API could potentially change. Usage is still safe as SEMVER will be respected*
 
 ## Benchmarks
 ```bash
