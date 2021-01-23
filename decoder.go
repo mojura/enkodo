@@ -107,15 +107,13 @@ func (d *Decoder) Bool() (v bool, err error) {
 }
 
 // Bytes will append bytes to the inbound byteslice
-func (d *Decoder) Bytes(in []byte) (v []byte, err error) {
-	v, err = decodeBytes(d.r, in)
-	return
+func (d *Decoder) Bytes(in *[]byte) (err error) {
+	return decodeBytes(d.r, in)
 }
 
 // String will return a decoded string
-func (d *Decoder) String() (v string, err error) {
-	v, err = decodeString(d.r)
-	return
+func (d *Decoder) String() (str string, err error) {
+	return decodeString(d.r)
 }
 
 // Decode will decode a decodee

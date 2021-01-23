@@ -9,8 +9,8 @@ import (
 
 const notEnoughBytesLayout = "not enough bytes available to decode <%T>, needed %d and has an available %d"
 
-func getStringBytes(str string) []byte {
-	return *((*[]byte)(unsafe.Pointer(&str)))
+func getStringBytes(str *string) *[]byte {
+	return ((*[]byte)(unsafe.Pointer(str)))
 }
 
 func getStringFromBytes(bs []byte) string {
@@ -50,11 +50,11 @@ type reader interface {
 	io.ByteReader
 }
 
-func expandSlice(bs []byte, sz int) (expanded []byte) {
-	delta := sz - cap(bs)
-	if delta <= 0 {
-		return bs[:sz]
+func expandSlice(bs *[]byte, sz int) {
+	if *bs != nil && cap(*bs) >= sz {
+		*bs = (*bs)[:sz]
+		return
 	}
 
-	return make([]byte, sz)
+	*bs = make([]byte, sz)
 }

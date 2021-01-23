@@ -218,24 +218,25 @@ func decodeFloat64(r reader) (v float64, err error) {
 	return
 }
 
-func decodeBytes(r reader, in []byte) (v []byte, err error) {
+func decodeBytes(r reader, in *[]byte) (err error) {
 	var bsLength int
 	if bsLength, err = decodeInt(r); err != nil {
 		return
 	}
 
-	v = expandSlice(in, bsLength)
+	expandSlice(in, bsLength)
+	v := *in
 	_, err = r.Read(v)
 	return
 }
 
-func decodeString(r reader) (v string, err error) {
-	var data []byte
-	if data, err = decodeBytes(r, nil); err != nil {
+func decodeString(r reader) (str string, err error) {
+	var bs []byte
+	if err = decodeBytes(r, &bs); err != nil {
 		return
 	}
 
-	v = getStringFromBytes(data)
+	str = getStringFromBytes(bs)
 	return
 }
 
