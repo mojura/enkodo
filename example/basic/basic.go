@@ -26,10 +26,8 @@ func main() {
 		log.Fatalf("Error encoding: %v", err)
 	}
 
-	// Create decoder
-	r := enkodo.NewReader(w.Bytes())
 	// Decode new user
-	if err = r.Decode(&nu); err != nil {
+	if err = enkodo.Unmarshal(w.Bytes(), &nu); err != nil {
 		log.Fatalf("Error decoding: %v", err)
 	}
 

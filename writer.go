@@ -3,9 +3,9 @@ package enkodo
 import "io"
 
 // NewWriter will initialize a new instance of writer
-func NewWriter(buffer []byte) *Writer {
+func NewWriter(in io.Writer) *Writer {
 	var w Writer
-	w.e = newEncoder(buffer)
+	w.e = newEncoder(in)
 	return &w
 }
 
@@ -56,6 +56,7 @@ func (w *Writer) Bytes() []byte {
 
 // Close will close the writer
 func (w *Writer) Close() (err error) {
+	w.e.teardown()
 	w.e = nil
 	return
 }

@@ -1,9 +1,11 @@
 package enkodo
 
+import "io"
+
 // NewReader will initialize a new instance of writer
-func NewReader(buffer []byte) *Reader {
+func NewReader(in io.Reader) *Reader {
 	var r Reader
-	r.d = newDecoder(buffer)
+	r.d = newDecoder(in)
 	return &r
 }
 
@@ -20,11 +22,6 @@ func (r *Reader) Decode(v Decodee) (err error) {
 
 	v.UnmarshalEnkodo(r.d)
 	return
-}
-
-// SetBuffer will replace the buffer bytes for a reader
-func (r *Reader) SetBuffer(bs []byte) {
-	r.d.bs = bs
 }
 
 // Close will close the reader

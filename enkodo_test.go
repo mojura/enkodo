@@ -29,7 +29,7 @@ func TestInt(t *testing.T) {
 	e.Int16(testNum)
 	e.Int32(testNum)
 	e.Int64(testNum)
-	d := newDecoder(e.bs)
+	d := newDecoder(bytes.NewBuffer(e.bs))
 
 	if iv8, err = d.Int8(); err != nil {
 		t.Fatal(err)
@@ -71,7 +71,7 @@ func TestUint(t *testing.T) {
 	e.Uint16(testNum)
 	e.Uint32(testNum)
 	e.Uint64(testNum)
-	d := newDecoder(e.bs)
+	d := newDecoder(bytes.NewBuffer(e.bs))
 
 	if uv8, err = d.Uint8(); err != nil {
 		t.Fatal(err)
@@ -108,7 +108,7 @@ func TestFloat(t *testing.T) {
 	e := newEncoder(nil)
 	e.Float32(3.33)
 	e.Float64(3.33)
-	d := newDecoder(e.bs)
+	d := newDecoder(bytes.NewBuffer(e.bs))
 
 	if f32, err = d.Float32(); err != nil {
 		t.Fatal(err)
@@ -131,7 +131,7 @@ func TestBool(t *testing.T) {
 
 	e := newEncoder(nil)
 	e.Bool(true)
-	d := newDecoder(e.bs)
+	d := newDecoder(bytes.NewBuffer(e.bs))
 
 	if bv, err = d.Bool(); err != nil {
 		t.Fatal(err)
@@ -148,7 +148,7 @@ func TestString(t *testing.T) {
 
 	e := newEncoder(nil)
 	e.String("Hello world")
-	d := newDecoder(e.bs)
+	d := newDecoder(bytes.NewBuffer(e.bs))
 
 	if sv, err = d.String(); err != nil {
 		t.Fatal(err)
@@ -167,7 +167,7 @@ func Test_encodeUint64(t *testing.T) {
 		bs = encodeUint64(bs, i)
 
 		var val uint64
-		if val, _, err = decodeUint64(bs); err != nil {
+		if val, err = decodeUint64(bytes.NewReader(bs)); err != nil {
 			t.Fatal(err)
 		}
 
@@ -188,7 +188,7 @@ func Test_encodeInt64(t *testing.T) {
 	for i := int64(-500_000); i < 500_000; i++ {
 		bs = encodeInt64(bs, i)
 		var val int64
-		if val, _, err = decodeInt64(bs); err != nil {
+		if val, err = decodeInt64(bytes.NewReader(bs)); err != nil {
 			t.Fatal(err)
 		}
 
@@ -238,7 +238,7 @@ func TestEncoderDecoder(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	d := newDecoder(e.bs)
+	d := newDecoder(bytes.NewReader(e.bs))
 	if err = d.Decode(&b); err != nil {
 		return
 	}
@@ -277,13 +277,16 @@ func BenchmarkEnkodoDecoding(b *testing.B) {
 	b.ReportAllocs()
 	b.ResetTimer()
 
-	r := NewReader(e.bs)
+	buf := bytes.NewReader(e.bs)
+	r := NewReader(buf)
 	for i := 0; i < b.N; i++ {
 		if err = r.Decode(&testVal); err != nil {
 			b.Fatal(err)
 		}
 
-		r.d.bs = e.bs
+		if _, err = buf.Seek(0, 0); err != nil {
+			b.Fatal(err)
+		}
 	}
 }
 
