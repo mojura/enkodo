@@ -3,6 +3,7 @@ package enkodo
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"math"
 	"testing"
 )
@@ -233,12 +234,13 @@ func TestEncoderDecoder(t *testing.T) {
 	)
 
 	a = newTestStruct()
-	e := newEncoder(nil)
+	inBuf := bytes.NewBuffer(nil)
+	e := newEncoder(inBuf)
 	if err = e.Encode(&a); err != nil {
 		t.Fatal(err)
 	}
 
-	d := newDecoder(bytes.NewReader(e.bs))
+	d := newDecoder(bytes.NewReader(inBuf.Bytes()))
 	if err = d.Decode(&b); err != nil {
 		return
 	}
@@ -268,7 +270,8 @@ func BenchmarkEnkodoEncoding(b *testing.B) {
 func BenchmarkEnkodoDecoding(b *testing.B) {
 	var err error
 	base := newTestStruct()
-	e := newEncoder(nil)
+	inBuf := bytes.NewBuffer(nil)
+	e := newEncoder(inBuf)
 
 	if err = e.Encode(&base); err != nil {
 		b.Fatal(err)
@@ -277,9 +280,10 @@ func BenchmarkEnkodoDecoding(b *testing.B) {
 	b.ReportAllocs()
 	b.ResetTimer()
 
-	buf := bytes.NewReader(e.bs)
+	buf := bytes.NewReader(inBuf.Bytes())
 	r := NewReader(buf)
 	for i := 0; i < b.N; i++ {
+		fmt.Println("About to decode", inBuf.String())
 		if err = r.Decode(&testVal); err != nil {
 			b.Fatal(err)
 		}

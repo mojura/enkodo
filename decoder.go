@@ -106,9 +106,9 @@ func (d *Decoder) Bool() (v bool, err error) {
 	return
 }
 
-// Bytes will return decoded bytes
-func (d *Decoder) Bytes() (v []byte, err error) {
-	v, err = decodeBytes(d.r)
+// Bytes will append bytes to the inbound byteslice
+func (d *Decoder) Bytes(in []byte) (v []byte, err error) {
+	v, err = decodeBytes(d.r, in)
 	return
 }
 

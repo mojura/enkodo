@@ -49,3 +49,12 @@ type reader interface {
 	io.Reader
 	io.ByteReader
 }
+
+func expandSlice(bs []byte, sz int) (expanded []byte) {
+	delta := sz - cap(bs)
+	if delta <= 0 {
+		return bs[:sz]
+	}
+
+	return make([]byte, sz)
+}
