@@ -79,7 +79,8 @@ func encodeBytes(bs, v []byte) (out []byte) {
 }
 
 func encodeString(bs []byte, v string) (out []byte) {
-	return encodeBytes(bs, getStringBytes(v))
+	bsp := getStringBytes(&v)
+	return encodeBytes(bs, *bsp)
 }
 
 func encodeBool(bs []byte, v bool) (out []byte) {

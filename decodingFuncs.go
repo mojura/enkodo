@@ -16,9 +16,9 @@ const (
 	byte8Subtractor = (1<<7 + 1<<14 + 1<<21 + 1<<28 + 1<<35 + 1<<42 + 1<<49 + 1<<56)
 )
 
-func decodeUint(bs []byte) (v uint, remaining []byte, err error) {
+func decodeUint(r reader) (v uint, err error) {
 	var u64 uint64
-	if u64, remaining, err = decodeUint64(bs); err != nil {
+	if u64, err = decodeUint64(r); err != nil {
 		return
 	}
 
@@ -26,15 +26,13 @@ func decodeUint(bs []byte) (v uint, remaining []byte, err error) {
 	return
 }
 
-func decodeUint8(bs []byte) (v uint8, remaining []byte, err error) {
-	v = bs[0]
-	remaining = bs[1:]
-	return
+func decodeUint8(r reader) (v uint8, err error) {
+	return r.ReadByte()
 }
 
-func decodeUint16(bs []byte) (v uint16, remaining []byte, err error) {
+func decodeUint16(r reader) (v uint16, err error) {
 	var u64 uint64
-	if u64, remaining, err = decodeUint64(bs); err != nil {
+	if u64, err = decodeUint64(r); err != nil {
 		return
 	}
 
@@ -42,9 +40,9 @@ func decodeUint16(bs []byte) (v uint16, remaining []byte, err error) {
 	return
 }
 
-func decodeUint32(bs []byte) (v uint32, remaining []byte, err error) {
+func decodeUint32(r reader) (v uint32, err error) {
 	var u64 uint64
-	if u64, remaining, err = decodeUint64(bs); err != nil {
+	if u64, err = decodeUint64(r); err != nil {
 		return
 	}
 
@@ -52,83 +50,107 @@ func decodeUint32(bs []byte) (v uint32, remaining []byte, err error) {
 	return
 }
 
-func decodeUint64(bs []byte) (v uint64, remaining []byte, err error) {
-	if len(bs) == 0 {
-		err = ErrEmptyBytes
+func decodeUint64(r reader) (v uint64, err error) {
+	var b byte
+	if b, err = r.ReadByte(); err != nil {
 		return
 	}
 
-	if v = uint64(bs[0]); v < ceiling {
-		remaining = bs[1:]
+	if v = uint64(b); v < ceiling {
 		return
 	}
 
-	second := bs[1]
-	v += uint64(second) << 7
+	// Read next byte
+	if b, err = r.ReadByte(); err != nil {
+		return
+	}
 
-	if second < ceiling {
+	v += uint64(b) << 7
+
+	if b < ceiling {
 		v -= byte1Subtractor
-		remaining = bs[2:]
 		return
 	}
 
-	third := bs[2]
-	v += uint64(third) << 14
-	if third < ceiling {
+	// Read next byte
+	if b, err = r.ReadByte(); err != nil {
+		return
+	}
+
+	v += uint64(b) << 14
+	if b < ceiling {
 		v -= byte2Subtractor
-		remaining = bs[3:]
 		return
 	}
 
-	forth := bs[3]
-	v += uint64(forth) << 21
-	if forth < ceiling {
+	// Read next byte
+	if b, err = r.ReadByte(); err != nil {
+		return
+	}
+
+	v += uint64(b) << 21
+	if b < ceiling {
 		v -= byte3Subtractor
-		remaining = bs[4:]
 		return
 	}
 
-	fifth := bs[4]
-	v += uint64(fifth) << 28
-	if fifth < ceiling {
+	// Read next byte
+	if b, err = r.ReadByte(); err != nil {
+		return
+	}
+
+	v += uint64(b) << 28
+	if b < ceiling {
 		v -= byte4Subtractor
-		remaining = bs[5:]
 		return
 	}
 
-	sixth := bs[5]
-	v += uint64(sixth) << 35
-	if sixth < ceiling {
+	// Read next byte
+	if b, err = r.ReadByte(); err != nil {
+		return
+	}
+
+	v += uint64(b) << 35
+	if b < ceiling {
 		v -= byte5Subtractor
-		remaining = bs[6:]
 		return
 	}
 
-	seventh := bs[6]
-	v += uint64(seventh) << 42
-	if seventh < ceiling {
+	// Read next byte
+	if b, err = r.ReadByte(); err != nil {
+		return
+	}
+
+	v += uint64(b) << 42
+	if b < ceiling {
 		v -= byte6Subtractor
-		remaining = bs[7:]
 		return
 	}
 
-	eighth := bs[7]
-	v += uint64(eighth) << 49
-	if eighth < ceiling {
+	// Read next byte
+	if b, err = r.ReadByte(); err != nil {
+		return
+	}
+
+	v += uint64(b) << 49
+	if b < ceiling {
 		v -= byte7Subtractor
-		remaining = bs[8:]
 		return
 	}
 
-	v += uint64(bs[8]) << 56
+	// Read next byte
+	if b, err = r.ReadByte(); err != nil {
+		return
+	}
+
+	v += uint64(b) << 56
 	v -= byte8Subtractor
-	remaining = bs[9:]
 	return
 }
 
-func decodeInt(bs []byte) (v int, remaining []byte, err error) {
+func decodeInt(r reader) (v int, err error) {
 	var u64 int64
-	if u64, remaining, err = decodeInt64(bs); err != nil {
+	if u64, err = decodeInt64(r); err != nil {
 		return
 	}
 
@@ -136,9 +158,9 @@ func decodeInt(bs []byte) (v int, remaining []byte, err error) {
 	return
 }
 
-func decodeInt8(bs []byte) (v int8, remaining []byte, err error) {
+func decodeInt8(r reader) (v int8, err error) {
 	var u8 uint8
-	if u8, remaining, err = decodeUint8(bs); err != nil {
+	if u8, err = decodeUint8(r); err != nil {
 		return
 	}
 
@@ -146,9 +168,9 @@ func decodeInt8(bs []byte) (v int8, remaining []byte, err error) {
 	return
 }
 
-func decodeInt16(bs []byte) (v int16, remaining []byte, err error) {
+func decodeInt16(r reader) (v int16, err error) {
 	var i64 int64
-	if i64, remaining, err = decodeInt64(bs); err != nil {
+	if i64, err = decodeInt64(r); err != nil {
 		return
 	}
 
@@ -156,9 +178,9 @@ func decodeInt16(bs []byte) (v int16, remaining []byte, err error) {
 	return
 }
 
-func decodeInt32(bs []byte) (v int32, remaining []byte, err error) {
+func decodeInt32(r reader) (v int32, err error) {
 	var i64 int64
-	if i64, remaining, err = decodeInt64(bs); err != nil {
+	if i64, err = decodeInt64(r); err != nil {
 		return
 	}
 
@@ -166,9 +188,9 @@ func decodeInt32(bs []byte) (v int32, remaining []byte, err error) {
 	return
 }
 
-func decodeInt64(bs []byte) (v int64, remaining []byte, err error) {
+func decodeInt64(r reader) (v int64, err error) {
 	var u64 uint64
-	if u64, remaining, err = decodeUint64(bs); err != nil {
+	if u64, err = decodeUint64(r); err != nil {
 		return
 	}
 
@@ -176,9 +198,9 @@ func decodeInt64(bs []byte) (v int64, remaining []byte, err error) {
 	return
 }
 
-func decodeFloat32(bs []byte) (v float32, remaining []byte, err error) {
+func decodeFloat32(r reader) (v float32, err error) {
 	var u32 uint32
-	if u32, remaining, err = decodeUint32(bs); err != nil {
+	if u32, err = decodeUint32(r); err != nil {
 		return
 	}
 
@@ -186,9 +208,9 @@ func decodeFloat32(bs []byte) (v float32, remaining []byte, err error) {
 	return
 }
 
-func decodeFloat64(bs []byte) (v float64, remaining []byte, err error) {
+func decodeFloat64(r reader) (v float64, err error) {
 	var u64 uint64
-	if u64, remaining, err = decodeUint64(bs); err != nil {
+	if u64, err = decodeUint64(r); err != nil {
 		return
 	}
 
@@ -196,30 +218,31 @@ func decodeFloat64(bs []byte) (v float64, remaining []byte, err error) {
 	return
 }
 
-func decodeBytes(bs []byte) (v []byte, remaining []byte, err error) {
-	var len int
-	if len, remaining, err = decodeInt(bs); err != nil {
+func decodeBytes(r reader, in *[]byte) (err error) {
+	var bsLength int
+	if bsLength, err = decodeInt(r); err != nil {
 		return
 	}
 
-	v = remaining[:len]
-	remaining = remaining[len:]
+	expandSlice(in, bsLength)
+	v := *in
+	_, err = r.Read(v)
 	return
 }
 
-func decodeString(bs []byte) (v string, remaining []byte, err error) {
-	var data []byte
-	if data, remaining, err = decodeBytes(bs); err != nil {
+func decodeString(r reader) (str string, err error) {
+	var bs []byte
+	if err = decodeBytes(r, &bs); err != nil {
 		return
 	}
 
-	v = getStringFromBytes(data)
+	str = getStringFromBytes(bs)
 	return
 }
 
-func decodeBool(bs []byte) (v bool, remaining []byte, err error) {
+func decodeBool(r reader) (v bool, err error) {
 	var u8 uint8
-	if u8, remaining, err = decodeUint8(bs); err != nil {
+	if u8, err = decodeUint8(r); err != nil {
 		return
 	}
 
