@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"log"
 
 	"github.com/mojura/enkodo"
@@ -19,15 +20,16 @@ func main() {
 	u.Age = 46
 	u.Twitter = "@johndoe"
 
+	buffer := bytes.NewBuffer(nil)
 	// Create a writer
-	w := enkodo.NewWriter(nil)
-	// Encode user
+	w := enkodo.NewWriter(buffer)
+	// Encode user to buffer
 	if err = w.Encode(&u); err != nil {
 		log.Fatalf("Error encoding: %v", err)
 	}
 
-	// Decode new user
-	if err = enkodo.Unmarshal(w.Bytes(), &nu); err != nil {
+	// Decode new user from buffer
+	if err = enkodo.Unmarshal(buffer.Bytes(), &nu); err != nil {
 		log.Fatalf("Error decoding: %v", err)
 	}
 

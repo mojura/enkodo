@@ -65,19 +65,16 @@ func main() {
 	u.Age = 46
 	u.Twitter = "@johndoe"
 
-	// Create a buffer to write to
-	buf := bytes.NewBuffer(nil)
-	// Create encoder
-	enc := enkodo.NewEncoder(buf)
-	// Encode user
-	if err = enc.Encode(&u); err != nil {
+	buffer := bytes.NewBuffer(nil)
+	// Create a writer
+	w := enkodo.NewWriter(buffer)
+	// Encode user to buffer
+	if err = w.Encode(&u); err != nil {
 		log.Fatalf("Error encoding: %v", err)
 	}
 
-	// Create decoder
-	dec := enkodo.NewDecoder(buf)
-	// Decode new user
-	if err = dec.Decode(&nu); err != nil {
+	// Decode new user from buffer
+	if err = enkodo.Unmarshal(buffer.Bytes(), &nu); err != nil {
 		log.Fatalf("Error decoding: %v", err)
 	}
 
@@ -93,18 +90,9 @@ type User struct {
 
 // MarshalEnkodo will marshal a User
 func (u *User) MarshalEnkodo(enc *enkodo.Encoder) (err error) {
-	if err = enc.String(u.Email); err != nil {
-		return
-	}
-
-	if err = enc.Uint8(u.Age); err != nil {
-		return
-	}
-
-	if err = enc.String(u.Twitter); err != nil {
-		return
-	}
-
+	enc.String(u.Email)
+	enc.Uint8(u.Age)
+	enc.String(u.Twitter)
 	return
 }
 
