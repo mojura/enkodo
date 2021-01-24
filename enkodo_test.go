@@ -430,7 +430,7 @@ func BenchmarkEnkodoDecoding_new_decoder_no_string(b *testing.B) {
 	}
 }
 
-func BenchmarkGOBEncoding_new_decoder(b *testing.B) {
+func BenchmarkGOBEncoding(b *testing.B) {
 	var err error
 	base := newTestStruct()
 	buf := bytes.NewBuffer(nil)
@@ -439,6 +439,24 @@ func BenchmarkGOBEncoding_new_decoder(b *testing.B) {
 
 	e := gob.NewEncoder(buf)
 	for i := 0; i < b.N; i++ {
+		if err = e.Encode(&base); err != nil {
+			b.Fatal(err)
+		}
+
+		// We reset after each iteration so our buffer slice doesn't continuously grow
+		buf.Reset()
+	}
+}
+
+func BenchmarkGOBEncoding_new_encoder(b *testing.B) {
+	var err error
+	base := newTestStruct()
+	buf := bytes.NewBuffer(nil)
+	b.ReportAllocs()
+	b.ResetTimer()
+
+	for i := 0; i < b.N; i++ {
+		e := gob.NewEncoder(buf)
 		if err = e.Encode(&base); err != nil {
 			b.Fatal(err)
 		}
