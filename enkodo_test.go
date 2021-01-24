@@ -294,6 +294,73 @@ func BenchmarkEnkodoDecoding_no_string(b *testing.B) {
 	}
 }
 
+func BenchmarkEnkodoEncoding_new_encoder(b *testing.B) {
+	var err error
+	base := newTestStruct()
+	b.ReportAllocs()
+	b.ResetTimer()
+
+	for i := 0; i < b.N; i++ {
+		w := NewWriter(nil)
+		if err = w.Encode(&base); err != nil {
+			b.Fatal(err)
+		}
+	}
+}
+
+func BenchmarkEnkodoDecoding_new_decoder(b *testing.B) {
+	var err error
+	base := newTestStruct()
+	inBuf := bytes.NewBuffer(nil)
+	e := newEncoder(inBuf)
+
+	if err = e.Encode(&base); err != nil {
+		b.Fatal(err)
+	}
+
+	b.ReportAllocs()
+	b.ResetTimer()
+	buf := bytes.NewReader(inBuf.Bytes())
+
+	for i := 0; i < b.N; i++ {
+		r := NewReader(buf)
+		if err = r.Decode(&testVal); err != nil {
+			b.Fatal(err)
+		}
+
+		if _, err = buf.Seek(0, 0); err != nil {
+			b.Fatal(err)
+		}
+	}
+}
+
+func BenchmarkEnkodoDecoding_new_decoder_no_string(b *testing.B) {
+	var err error
+	base := newTestStruct()
+	base.Str = ""
+	inBuf := bytes.NewBuffer(nil)
+	e := newEncoder(inBuf)
+
+	if err = e.Encode(&base); err != nil {
+		b.Fatal(err)
+	}
+
+	b.ReportAllocs()
+	b.ResetTimer()
+
+	buf := bytes.NewReader(inBuf.Bytes())
+	for i := 0; i < b.N; i++ {
+		r := NewReader(buf)
+		if err = r.Decode(&testVal); err != nil {
+			b.Fatal(err)
+		}
+
+		if _, err = buf.Seek(0, 0); err != nil {
+			b.Fatal(err)
+		}
+	}
+}
+
 func BenchmarkJSONEncoding(b *testing.B) {
 	var err error
 	base := newTestStruct()
@@ -363,70 +430,69 @@ func BenchmarkJSONDecoding_no_string(b *testing.B) {
 	}
 }
 
-func BenchmarkEnkodoEncoding_new_encoder(b *testing.B) {
+func BenchmarkJSONEncoding_new_encoder(b *testing.B) {
 	var err error
 	base := newTestStruct()
+	buf := bytes.NewBuffer(nil)
 	b.ReportAllocs()
 	b.ResetTimer()
-
 	for i := 0; i < b.N; i++ {
-		w := NewWriter(nil)
-		if err = w.Encode(&base); err != nil {
+		e := json.NewEncoder(buf)
+		if err = e.Encode(&base); err != nil {
 			b.Fatal(err)
 		}
+
+		// We reset after each iteration so our buffer slice doesn't continuously grow
+		buf.Reset()
 	}
 }
 
-func BenchmarkEnkodoDecoding_new_decoder(b *testing.B) {
+func BenchmarkJSONDecoding_new_decoder(b *testing.B) {
 	var err error
 	base := newTestStruct()
-	inBuf := bytes.NewBuffer(nil)
-	e := newEncoder(inBuf)
+	buf := bytes.NewBuffer(nil)
 
-	if err = e.Encode(&base); err != nil {
+	if err = json.NewEncoder(buf).Encode(&base); err != nil {
 		b.Fatal(err)
 	}
 
+	r := bytes.NewReader(buf.Bytes())
 	b.ReportAllocs()
 	b.ResetTimer()
-	buf := bytes.NewReader(inBuf.Bytes())
 
 	for i := 0; i < b.N; i++ {
-		r := NewReader(buf)
-		if err = r.Decode(&testVal); err != nil {
+		d := json.NewDecoder(r)
+		if err = d.Decode(&testVal); err != nil {
 			b.Fatal(err)
 		}
 
-		if _, err = buf.Seek(0, 0); err != nil {
-			b.Fatal(err)
-		}
+		// We reset after each iteration so our buffer slice doesn't continuously grow
+		r.Reset(buf.Bytes())
 	}
 }
 
-func BenchmarkEnkodoDecoding_new_decoder_no_string(b *testing.B) {
+func BenchmarkJSONDecoding_new_decoder_no_string(b *testing.B) {
 	var err error
 	base := newTestStruct()
 	base.Str = ""
-	inBuf := bytes.NewBuffer(nil)
-	e := newEncoder(inBuf)
+	buf := bytes.NewBuffer(nil)
 
-	if err = e.Encode(&base); err != nil {
+	if err = json.NewEncoder(buf).Encode(&base); err != nil {
 		b.Fatal(err)
 	}
 
+	r := bytes.NewReader(buf.Bytes())
 	b.ReportAllocs()
 	b.ResetTimer()
 
-	buf := bytes.NewReader(inBuf.Bytes())
 	for i := 0; i < b.N; i++ {
-		r := NewReader(buf)
-		if err = r.Decode(&testVal); err != nil {
+		d := json.NewDecoder(r)
+		if err = d.Decode(&testVal); err != nil {
 			b.Fatal(err)
 		}
 
-		if _, err = buf.Seek(0, 0); err != nil {
-			b.Fatal(err)
-		}
+		// We reset after each iteration so our buffer slice doesn't continuously grow
+		r.Reset(buf.Bytes())
 	}
 }
 
@@ -509,72 +575,6 @@ func BenchmarkGOBDecoding_new_decoder_no_string(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		// When we re-use the gob decoder, we get a "extra data in buffer" error
 		d := gob.NewDecoder(r)
-		if err = d.Decode(&testVal); err != nil {
-			b.Fatal(err)
-		}
-
-		// We reset after each iteration so our buffer slice doesn't continuously grow
-		r.Reset(buf.Bytes())
-	}
-}
-
-func BenchmarkJSONEncoding_new_encoder(b *testing.B) {
-	var err error
-	base := newTestStruct()
-	buf := bytes.NewBuffer(nil)
-	b.ReportAllocs()
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
-		e := json.NewEncoder(buf)
-		if err = e.Encode(&base); err != nil {
-			b.Fatal(err)
-		}
-
-		// We reset after each iteration so our buffer slice doesn't continuously grow
-		buf.Reset()
-	}
-}
-
-func BenchmarkJSONDecoding_new_decoder(b *testing.B) {
-	var err error
-	base := newTestStruct()
-	buf := bytes.NewBuffer(nil)
-
-	if err = json.NewEncoder(buf).Encode(&base); err != nil {
-		b.Fatal(err)
-	}
-
-	r := bytes.NewReader(buf.Bytes())
-	b.ReportAllocs()
-	b.ResetTimer()
-
-	for i := 0; i < b.N; i++ {
-		d := json.NewDecoder(r)
-		if err = d.Decode(&testVal); err != nil {
-			b.Fatal(err)
-		}
-
-		// We reset after each iteration so our buffer slice doesn't continuously grow
-		r.Reset(buf.Bytes())
-	}
-}
-
-func BenchmarkJSONDecoding_new_decoder_no_string(b *testing.B) {
-	var err error
-	base := newTestStruct()
-	base.Str = ""
-	buf := bytes.NewBuffer(nil)
-
-	if err = json.NewEncoder(buf).Encode(&base); err != nil {
-		b.Fatal(err)
-	}
-
-	r := bytes.NewReader(buf.Bytes())
-	b.ReportAllocs()
-	b.ResetTimer()
-
-	for i := 0; i < b.N; i++ {
-		d := json.NewDecoder(r)
 		if err = d.Decode(&testVal); err != nil {
 			b.Fatal(err)
 		}
