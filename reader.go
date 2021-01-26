@@ -20,8 +20,7 @@ func (r *Reader) Decode(v Decodee) (err error) {
 		return ErrIsClosed
 	}
 
-	v.UnmarshalEnkodo(r.d)
-	return
+	return v.UnmarshalEnkodo(r.d)
 }
 
 // Close will close the reader
