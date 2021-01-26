@@ -56,6 +56,10 @@ func (w *Writer) Bytes() []byte {
 
 // Close will close the writer
 func (w *Writer) Close() (err error) {
+	if w.e == nil {
+		return ErrIsClosed
+	}
+
 	w.e.teardown()
 	w.e = nil
 	return
