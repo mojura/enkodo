@@ -1,6 +1,7 @@
 package enkodo
 
 import (
+	"fmt"
 	"math"
 	"unsafe"
 )
@@ -221,10 +222,17 @@ func decodeFloat64(r reader) (v float64, err error) {
 func decodeBytes(r reader, in *[]byte) (err error) {
 	var bsLength int
 	if bsLength, err = decodeInt(r); err != nil {
+		err = fmt.Errorf("error decoding bytes length: %v", err)
 		return
 	}
 
 	expandSlice(in, bsLength)
+
+	if bsLength == 0 {
+		// We do not have any bytes to read, return
+		return
+	}
+
 	v := *in
 	_, err = r.Read(v)
 	return
