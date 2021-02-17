@@ -12,6 +12,9 @@ func newEncoder(w io.Writer) *Encoder {
 type Encoder struct {
 	bs []byte
 	w  io.Writer
+
+	// Total written bytes
+	written int64
 }
 
 func (e *Encoder) flush() (err error) {
@@ -19,7 +22,11 @@ func (e *Encoder) flush() (err error) {
 		return
 	}
 
-	_, err = e.w.Write(e.bs)
+	var n int
+	if n, err = e.w.Write(e.bs); err == nil {
+		e.written += int64(n)
+	}
+
 	e.bs = e.bs[:0]
 	return
 }

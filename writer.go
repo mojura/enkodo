@@ -54,6 +54,11 @@ func (w *Writer) Bytes() []byte {
 	return w.e.bs
 }
 
+// Written will return the total number of bytes written
+func (w *Writer) Written() int64 {
+	return w.e.written
+}
+
 // Close will close the writer
 func (w *Writer) Close() (err error) {
 	if w.e == nil {
