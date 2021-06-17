@@ -4,7 +4,9 @@ import (
 	"bytes"
 	"encoding/gob"
 	"encoding/json"
+	"fmt"
 	"math"
+	"reflect"
 	"testing"
 )
 
@@ -766,4 +768,11 @@ func (t *testStruct) isMatch(c *testStruct) (match bool) {
 	}
 
 	return true
+}
+
+func TestStr(t *testing.T) {
+	str := "foobar"
+	rval := reflect.ValueOf(&str).Elem()
+	rval.SetString("foobaz")
+	fmt.Println(str)
 }

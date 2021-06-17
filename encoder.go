@@ -128,8 +128,18 @@ func (e *Encoder) Bool(v bool) (err error) {
 }
 
 // Encode will encode an encodee
-func (e *Encoder) Encode(v Encodee) (err error) {
-	return v.MarshalEnkodo(e)
+func (e *Encoder) Encode(v interface{}) (err error) {
+	enc, ok := v.(Encodee)
+	if ok {
+		return enc.MarshalEnkodo(e)
+	}
+
+	var s Schema
+	if s, err = MakeSchema(v); err != nil {
+		return
+	}
+
+	return s.MarshalEnkodo(e, v)
 }
 
 // Encodee is a data structure to be encoded
