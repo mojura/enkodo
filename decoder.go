@@ -3,6 +3,7 @@ package enkodo
 import (
 	"bufio"
 	"io"
+	"reflect"
 )
 
 func newDecoder(r io.Reader) *Decoder {
@@ -117,8 +118,19 @@ func (d *Decoder) String() (str string, err error) {
 }
 
 // Decode will decode a decodee
-func (d *Decoder) Decode(v Decodee) (err error) {
-	return v.UnmarshalEnkodo(d)
+func (d *Decoder) Decode(v interface{}) (err error) {
+	dec, ok := v.(Decodee)
+	if ok {
+		return dec.UnmarshalEnkodo(d)
+	}
+
+	var s Schema
+	if s, err = MakeSchema(v); err != nil {
+		return
+	}
+
+	rval := reflect.ValueOf(v)
+	return s.UnmarshalEnkodo(d, &rval)
 }
 
 // Decodee is a data structure to be dedoded
