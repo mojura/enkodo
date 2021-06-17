@@ -58,10 +58,6 @@ func makeSchema(rtype reflect.Type) (s Schema, err error) {
 	}
 }
 
-type encoderFn func(*Encoder, interface{}) error
-
-type decoderFn func(*Decoder, *reflect.Value) error
-
 type basicSchema struct {
 	efn encoderFn
 	dfn decoderFn

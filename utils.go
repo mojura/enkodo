@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"io"
+	"reflect"
 	"unsafe"
 )
 
@@ -58,3 +59,7 @@ func expandSlice(bs *[]byte, sz int) {
 
 	*bs = make([]byte, sz)
 }
+
+type encoderFn func(*Encoder, interface{}) error
+
+type decoderFn func(*Decoder, *reflect.Value) error
