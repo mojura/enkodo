@@ -1,12 +1,34 @@
 package enkodo
 
 import (
-	"errors"
+	"fmt"
 	"reflect"
+)
+
+var (
+	iface interface{}
+
+	genericInterface = reflect.TypeOf(iface)
+	genericSlice     = reflect.TypeOf([]interface{}{})
+	genericMap       = reflect.TypeOf(map[interface{}]interface{}{})
 )
 
 func genericEncode(enc *Encoder, val interface{}) (err error) {
 	return enc.Encode(val.(Encodee))
+}
+
+func genericEncodeInterface(enc *Encoder, val interface{}) (err error) {
+	typ := reflect.TypeOf(val)
+	if err = enc.Uint(uint(typ.Kind())); err != nil {
+		return
+	}
+
+	var s Schema
+	if s, err = c.GetOrCreate(typ); err != nil {
+		return
+	}
+
+	return s.MarshalEnkodo(enc, val)
 }
 
 func genericEncodeString(enc *Encoder, val interface{}) (err error) {
@@ -71,13 +93,51 @@ func genericDecode(dec *Decoder, field *reflect.Value) (err error) {
 		UnmarshalEnkodo(dec)
 }
 
+func genericDecodeInterface(dec *Decoder, val *reflect.Value) (err error) {
+	var kindU uint
+	if kindU, err = dec.Uint(); err != nil {
+		return
+	}
+
+	var (
+		s  Schema
+		ok bool
+	)
+
+	kind := reflect.Kind(kindU)
+	if s, ok = basicSchemas[kind]; ok {
+		return s.UnmarshalEnkodo(dec, val)
+	}
+
+	switch kind {
+	case reflect.Slice:
+		s, err = newSliceSchema(genericSlice)
+	case reflect.Map:
+		s, err = newMapSchema(genericMap)
+
+	// Note: This needs to be a slow struct type (which acts like a map)
+	//case reflect.Struct:
+	//	s, err = newStructSchema(val.Type())
+
+	default:
+		return fmt.Errorf("cannot decode kind of <%s>", kind.String())
+	}
+
+	if err != nil {
+		return
+	}
+
+	return s.UnmarshalEnkodo(dec, val)
+}
+
 func genericDecodeString(dec *Decoder, field *reflect.Value) (err error) {
 	var v string
 	if v, err = dec.String(); err != nil {
 		return
 	}
 
-	field.Elem().SetString(v)
+	indirect := reflect.Indirect(*field)
+	indirect.Set(reflect.ValueOf(v))
 	return
 }
 
@@ -87,7 +147,8 @@ func genericDecodeBool(dec *Decoder, field *reflect.Value) (err error) {
 		return
 	}
 
-	field.Elem().SetBool(v)
+	indirect := reflect.Indirect(*field)
+	indirect.Set(reflect.ValueOf(v))
 	return
 }
 
@@ -97,7 +158,8 @@ func genericDecodeInt8(dec *Decoder, field *reflect.Value) (err error) {
 		return
 	}
 
-	field.Elem().SetInt(int64(v))
+	indirect := reflect.Indirect(*field)
+	indirect.Set(reflect.ValueOf(v))
 	return
 }
 
@@ -107,7 +169,8 @@ func genericDecodeInt16(dec *Decoder, field *reflect.Value) (err error) {
 		return
 	}
 
-	field.Elem().SetInt(int64(v))
+	indirect := reflect.Indirect(*field)
+	indirect.Set(reflect.ValueOf(v))
 	return
 }
 
@@ -117,7 +180,8 @@ func genericDecodeInt32(dec *Decoder, field *reflect.Value) (err error) {
 		return
 	}
 
-	field.Elem().SetInt(int64(v))
+	indirect := reflect.Indirect(*field)
+	indirect.Set(reflect.ValueOf(v))
 	return
 }
 
@@ -127,7 +191,8 @@ func genericDecodeInt64(dec *Decoder, field *reflect.Value) (err error) {
 		return
 	}
 
-	field.Elem().SetInt(v)
+	indirect := reflect.Indirect(*field)
+	indirect.Set(reflect.ValueOf(v))
 	return
 }
 
@@ -137,7 +202,8 @@ func genericDecodeInt(dec *Decoder, field *reflect.Value) (err error) {
 		return
 	}
 
-	field.Elem().SetInt(int64(v))
+	indirect := reflect.Indirect(*field)
+	indirect.Set(reflect.ValueOf(v))
 	return
 }
 
@@ -147,7 +213,8 @@ func genericDecodeUint8(dec *Decoder, field *reflect.Value) (err error) {
 		return
 	}
 
-	field.Elem().SetUint(uint64(v))
+	indirect := reflect.Indirect(*field)
+	indirect.Set(reflect.ValueOf(v))
 	return
 }
 
@@ -157,7 +224,8 @@ func genericDecodeUint16(dec *Decoder, field *reflect.Value) (err error) {
 		return
 	}
 
-	field.Elem().SetUint(uint64(v))
+	indirect := reflect.Indirect(*field)
+	indirect.Set(reflect.ValueOf(v))
 	return
 }
 
@@ -167,7 +235,8 @@ func genericDecodeUint32(dec *Decoder, field *reflect.Value) (err error) {
 		return
 	}
 
-	field.Elem().SetUint(uint64(v))
+	indirect := reflect.Indirect(*field)
+	indirect.Set(reflect.ValueOf(v))
 	return
 }
 
@@ -177,7 +246,8 @@ func genericDecodeUint64(dec *Decoder, field *reflect.Value) (err error) {
 		return
 	}
 
-	field.Elem().SetUint(uint64(v))
+	indirect := reflect.Indirect(*field)
+	indirect.Set(reflect.ValueOf(v))
 	return
 }
 
@@ -187,7 +257,8 @@ func genericDecodeUint(dec *Decoder, field *reflect.Value) (err error) {
 		return
 	}
 
-	field.Elem().SetUint(uint64(v))
+	indirect := reflect.Indirect(*field)
+	indirect.Set(reflect.ValueOf(v))
 	return
 }
 
@@ -197,7 +268,8 @@ func genericDecodeFloat32(dec *Decoder, field *reflect.Value) (err error) {
 		return
 	}
 
-	field.Elem().SetFloat(float64(v))
+	indirect := reflect.Indirect(*field)
+	indirect.Set(reflect.ValueOf(v))
 	return
 }
 
@@ -207,7 +279,8 @@ func genericDecodeFloat64(dec *Decoder, field *reflect.Value) (err error) {
 		return
 	}
 
-	field.Elem().SetFloat(v)
+	indirect := reflect.Indirect(*field)
+	indirect.Set(reflect.ValueOf(v))
 	return
 }
 
@@ -218,7 +291,7 @@ func genericEncodeSlice(enc *Encoder, val interface{}) (err error) {
 	}
 
 	for _, val := range s {
-		if err = enc.Encode(val); err != nil {
+		if err = genericEncodeInterface(enc, val); err != nil {
 			return
 		}
 	}
@@ -232,24 +305,77 @@ func genericDecodeSlice(dec *Decoder, val *reflect.Value) (err error) {
 		return
 	}
 
+	fmt.Println("Generic decode slice!", val)
 	s := make([]interface{}, 0, limit)
-	for _, val := range s {
-		if err = dec.Decode(val); err != nil {
+	for i := 0; i < limit; i++ {
+		var val interface{}
+		rval := reflect.ValueOf(&val)
+		if err = genericDecodeInterface(dec, &rval); err != nil {
 			return
 		}
+
+		switch n := rval.Interface().(type) {
+		case *string:
+			fmt.Printf("Str: <%s> / %v\n", *n, val)
+		}
+
+		s = append(s, val)
 	}
 
-	// TODO: Finish this
-	// sp := val.Interface().(*[]interface{})
+	fmt.Println("S?", s)
+
+	reflect.Indirect(*val).
+		Set(reflect.ValueOf(s))
 	return
 }
 
 func genericEncodeMap(enc *Encoder, val interface{}) (err error) {
-	return errors.New("encode map not implemented")
+	fmt.Println("Oh?", val)
+	rval := reflect.ValueOf(val)
+	if err = enc.Int(rval.Len()); err != nil {
+		return
+	}
+
+	keys := rval.MapKeys()
+	for _, key := range keys {
+		if err = genericEncodeInterface(enc, key.Interface()); err != nil {
+			return
+		}
+
+		entry := rval.MapIndex(key)
+		if err = genericEncodeInterface(enc, entry.Interface()); err != nil {
+			return
+		}
+	}
+
+	return
 }
 
-func genericDecodeMap(dec *Decoder, field *reflect.Value) (err error) {
-	return errors.New("decode map not implemented")
+func genericDecodeMap(dec *Decoder, ref *reflect.Value) (err error) {
+	var limit int
+	if limit, err = dec.Int(); err != nil {
+		return
+	}
+
+	*ref = reflect.MakeMapWithSize(ref.Elem().Type(), limit)
+	fmt.Println("Target?", ref.Interface())
+	for i := 0; i < limit; i++ {
+		var key interface{}
+		rkey := reflect.ValueOf(key)
+		if err = genericDecodeInterface(dec, &rkey); err != nil {
+			return
+		}
+
+		var val interface{}
+		rval := reflect.ValueOf(val)
+		if err = genericDecodeInterface(dec, &rval); err != nil {
+			return
+		}
+
+		ref.SetMapIndex(rkey.Elem(), rval.Elem())
+	}
+
+	return
 }
 
 func makeGenericSliceEncoderFn(s Schema) (efn encoderFn) {
