@@ -5,32 +5,27 @@ import (
 	"reflect"
 )
 
-var basicSchemas = map[reflect.Kind]Schema{
-	reflect.String:  &basicSchema{efn: genericEncodeString, dfn: genericDecodeString},
-	reflect.Bool:    &basicSchema{efn: genericEncodeBool, dfn: genericDecodeBool},
-	reflect.Int:     &basicSchema{efn: genericEncodeInt, dfn: genericDecodeInt},
-	reflect.Int8:    &basicSchema{efn: genericEncodeInt8, dfn: genericDecodeInt8},
-	reflect.Int16:   &basicSchema{efn: genericEncodeInt16, dfn: genericDecodeInt16},
-	reflect.Int32:   &basicSchema{efn: genericEncodeInt32, dfn: genericDecodeInt32},
-	reflect.Int64:   &basicSchema{efn: genericEncodeInt64, dfn: genericDecodeInt64},
-	reflect.Uint:    &basicSchema{efn: genericEncodeUint, dfn: genericDecodeUint},
-	reflect.Uint8:   &basicSchema{efn: genericEncodeUint8, dfn: genericDecodeUint8},
-	reflect.Uint16:  &basicSchema{efn: genericEncodeUint16, dfn: genericDecodeUint16},
-	reflect.Uint32:  &basicSchema{efn: genericEncodeUint32, dfn: genericDecodeUint32},
-	reflect.Uint64:  &basicSchema{efn: genericEncodeUint64, dfn: genericDecodeUint64},
-	reflect.Float32: &basicSchema{efn: genericEncodeFloat32, dfn: genericDecodeFloat32},
-	reflect.Float64: &basicSchema{efn: genericEncodeFloat64, dfn: genericDecodeFloat64},
+var basicSchemas = map[reflect.Kind]*basicSchema{
+	reflect.String:  newBasicSchema("", genericEncodeString, genericDecodeString),
+	reflect.Bool:    newBasicSchema(true, genericEncodeBool, genericDecodeBool),
+	reflect.Int:     newBasicSchema(int(1), genericEncodeInt, genericDecodeInt),
+	reflect.Int8:    newBasicSchema(int8(1), genericEncodeInt8, genericDecodeInt8),
+	reflect.Int16:   newBasicSchema(int16(1), genericEncodeInt16, genericDecodeInt16),
+	reflect.Int32:   newBasicSchema(int32(1), genericEncodeInt32, genericDecodeInt32),
+	reflect.Int64:   newBasicSchema(int64(1), genericEncodeInt64, genericDecodeInt64),
+	reflect.Uint:    newBasicSchema(uint(1), genericEncodeUint, genericDecodeUint),
+	reflect.Uint8:   newBasicSchema(uint8(1), genericEncodeUint8, genericDecodeUint8),
+	reflect.Uint16:  newBasicSchema(uint16(1), genericEncodeUint16, genericDecodeUint16),
+	reflect.Uint32:  newBasicSchema(uint32(1), genericEncodeUint32, genericDecodeUint32),
+	reflect.Uint64:  newBasicSchema(uint64(1), genericEncodeUint64, genericDecodeUint64),
+	reflect.Float32: newBasicSchema(float32(1), genericEncodeFloat32, genericDecodeFloat32),
+	reflect.Float64: newBasicSchema(float64(1), genericEncodeFloat64, genericDecodeFloat64),
 }
 
 // MakeSchema will initialize a new Schema
 func MakeSchema(val interface{}) (s Schema, err error) {
 	typ := reflect.TypeOf(val)
 	return c.GetOrCreate(typ)
-}
-
-type Schema interface {
-	MarshalEnkodo(enc *Encoder, val interface{}) error
-	UnmarshalEnkodo(dec *Decoder, field *reflect.Value) error
 }
 
 func makeSchema(rtype reflect.Type) (s Schema, err error) {
@@ -56,4 +51,9 @@ func makeSchema(rtype reflect.Type) (s Schema, err error) {
 		err = fmt.Errorf("type of %s is not supported", rtype.Kind())
 		return
 	}
+}
+
+type Schema interface {
+	MarshalEnkodo(enc *Encoder, val interface{}) error
+	UnmarshalEnkodo(dec *Decoder, field *reflect.Value) error
 }
