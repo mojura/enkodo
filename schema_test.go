@@ -50,6 +50,12 @@ func TestSchema_Marshal_Unmarshal(t *testing.T) {
 			"bar",
 			"baz",
 			1337,
+			true,
+			map[string]interface{}{
+				"foo": "1",
+				"bar": true,
+				"baz": 1337,
+			},
 		},
 		B: map[string]interface{}{
 			"foo": "1",
@@ -88,24 +94,24 @@ func TestSchema_Marshal_Unmarshal(t *testing.T) {
 		err error
 	)
 
-	if s, err = MakeSchema(val); err != nil {
+	if s, err = MakeSchema(val.A); err != nil {
 		t.Fatal(err)
 	}
 
 	buf := bytes.NewBuffer(nil)
 	enc := newEncoder(buf)
 
-	if err = s.MarshalEnkodo(enc, val); err != nil {
+	if err = s.MarshalEnkodo(enc, val.A); err != nil {
 		t.Fatal(err)
 	}
 
 	dec := newDecoder(buf)
 
-	var ref schemaTestLarge
+	var ref []interface{}
 	rval := reflect.ValueOf(&ref)
 	if err = s.UnmarshalEnkodo(dec, &rval); err != nil {
 		t.Fatal(err)
 	}
 
-	fmt.Printf("%+v\n\n%+v\n", val.Medium, ref)
+	fmt.Printf("\n%+v\n%+v\n", val.A, ref)
 }
