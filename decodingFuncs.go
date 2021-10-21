@@ -2,6 +2,7 @@ package enkodo
 
 import (
 	"fmt"
+	"io"
 	"math"
 	"unsafe"
 )
@@ -234,7 +235,7 @@ func decodeBytes(r reader, in *[]byte) (err error) {
 	}
 
 	v := *in
-	_, err = r.Read(v)
+	_, err = io.ReadAtLeast(r, v, bsLength)
 	return
 }
 
