@@ -223,7 +223,7 @@ func decodeFloat64(r reader) (v float64, err error) {
 func decodeBytes(r reader, in *[]byte) (err error) {
 	var bsLength int
 	if bsLength, err = decodeInt(r); err != nil {
-		err = fmt.Errorf("error decoding bytes length: %v", err)
+		err = fmt.Errorf("error decoding bytes length: %w", err)
 		return
 	}
 
